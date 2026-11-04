@@ -38,6 +38,12 @@ export function buildDiagnostic(result: TaskResult): string {
   const lines: string[] = [
     '渠道分包工具 · 出包失败',
     `任务号：${result.taskId}`,
+    /*
+     * 第几行放标签而不是塞进「原因」：收件人拿到一段诊断信息，第一件事是确认
+     * 「你说的这个是不是我这一批里的那个包」—— 一批里往往好几个包，只有任务号和
+     * 一句技术性原因是对不上的。
+     */
+    `本次出包：${result.label}`,
     `失败步骤：${failure ? STAGE_LABELS[failure.stage] : '未知'}`,
     `原因：${result.message}`,
   ]

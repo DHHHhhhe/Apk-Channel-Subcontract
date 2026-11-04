@@ -15,7 +15,7 @@ import { useTask } from '@/store/task'
  * role="status" + aria-live：读屏用户也能在切页时听到状态变化。
  */
 export function TaskIndicator() {
-  const { running, stage, cancel } = useTask()
+  const { running, stage, label, cancel } = useTask()
   const { view, go } = useNav()
   const [cancelling, setCancelling] = useState(false)
 
@@ -37,7 +37,15 @@ export function TaskIndicator() {
     <div className="flex items-center gap-2" role="status" aria-live="polite">
       <span className="flex items-center gap-2 text-sm text-muted-foreground">
         <Spinner />
-        出包中 · {stage ?? '准备中'}
+        {/*
+          * 顶栏空间有限，只放得下一行。离开出包页之后人最想知道的是
+          * 「还在跑的到底是不是我刚才那个包」—— 所以标签比阶段更该留在这一行上，
+          * 阶段折在后面。包名太长时靠 truncate 截，title 里是全名。
+          */}
+        <span className="max-w-[14rem] truncate text-foreground" title={label ?? undefined}>
+          {label ?? '出包中'}
+        </span>
+        <span className="text-muted-foreground">· {stage ?? '准备中'}</span>
       </span>
       {/* 已经在出包页时不必再给一个「查看」 */}
       {view === 'pack' ? null : (

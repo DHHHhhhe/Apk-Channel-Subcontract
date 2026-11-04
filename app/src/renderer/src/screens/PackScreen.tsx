@@ -57,6 +57,7 @@ import { fileStem, matchGroupByApk } from '@/lib/group-match'
 import { ipcErrorMessage } from '@/lib/ipc-error'
 import { NO_JKS_KEY, readLastGroup, writeLastGroup } from '@/lib/last-group'
 import type { FixAction } from '@/lib/task-report'
+import { formatRunLabel, fileNameOf } from '@shared/utils/run-label'
 import { useAppStore } from '@/store/app-store'
 import { useNav } from '@/store/nav'
 import { useTask } from '@/store/task'
@@ -72,16 +73,8 @@ function defaultOutputDir(apkPath: string): string {
 }
 
 /**
- * 只取文件名。
- * 「查看渠道」的结果里不放完整路径：包没写过渠道时 walle 只会回一行 `<路径> : `，
- * 早先把整行当成渠道号显示，界面上就冒出一串没人要的目录。
+ * 「最近结果」里的时间，只到分钟 —— 那一段只用来分「哪次是哪次」
  */
-function baseNameOf(filePath: string): string {
-  const normalized = filePath.replace(/\\/g, '/')
-  return normalized.slice(normalized.lastIndexOf('/') + 1)
-}
-
-/** 「最近结果」里的时间，只到分钟 —— 那一段只用来分「哪次是哪次」 */
 function clockOf(at: number): string {
   const date = new Date(at)
   const pad = (value: number): string => String(value).padStart(2, '0')
@@ -140,6 +133,7 @@ export function PackScreen() {
   const {
     running,
     stage,
+    label,
     flow,
     lines,
     result,
@@ -567,6 +561,8 @@ export function PackScreen() {
   const currentParams = (): TaskInput => {
     const base = {
       apkPath: apkPath.trim(),
+      // 进度、最近结果都靠这一行标签区分「是哪一次、哪个包」—— 队列跑起来之后尤其要紧
+      label: formatRunLabel(fileNameOf(apkPath.trim()), selectedGroup?.name ?? ''),
       channelCodes: [...picked],
       signMode,
       outputDir: outputDir.trim(),
@@ -628,6 +624,8 @@ export function PackScreen() {
       setCustomOpen(false)
       const base: TaskInput = {
         apkPath: apkPath.trim(),
+        // 这条路没有分组，标签由共享函数补成「自定义渠道」
+        label: formatRunLabel(fileNameOf(apkPath.trim()), ''),
         // 渠道来源 B：这份列表只存在于这次出包里
         channelInfoList: payload.channels,
         channelCodes: payload.channels.map((entry) => entry.channel),
@@ -780,7 +778,7 @@ export function PackScreen() {
     const item: QueueItem = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       params,
-      apkName: baseNameOf(params.apkPath),
+      apkName: fileNameOf(params.apkPath),
       jksName: noJks ? '不用签名文件' : (selectedJks?.displayName ?? jksId),
       groupName: selectedGroup?.name ?? '',
       status: 'pending',
@@ -1325,6 +1323,7 @@ export function PackScreen() {
 
       <ProgressPanel
         stage={stage}
+        label={label}
         flow={flow}
         lines={lines}
         queueProgress={queueProgress}
@@ -1371,7 +1370,8 @@ export function PackScreen() {
               <Badge variant="outline">{history.length} 次</Badge>
             </CardTitle>
             <CardDescription>
-              最近 10 次出包的结果，新的在最上面；关掉窗口就没了。逐项结果在「出包队列」里看。
+              最近 10 次出包的结果，新的在最上面；关掉窗口就没了。每条前面是「包名 ·
+              分组」，逐项结果在「出包队列」里看。
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
@@ -1383,7 +1383,14 @@ export function PackScreen() {
                 <Badge variant={entry.result.ok ? 'success' : 'destructive'}>
                   {entry.result.ok ? '成功' : '失败'}
                 </Badge>
-                <span className="min-w-0 break-words">{entry.result.message}</span>
+                {/*
+                  * 队列跑完一批之后，这一行光有时间和「成功」是分不清是哪个包的 ——
+                  * 一批里往往好几个包都成功。标签写清「包 · 分组」，扫一眼就能对上。
+                  */}
+                <span className="font-medium break-words">{entry.result.label}</span>
+                <span className="min-w-0 break-words text-muted-foreground">
+                  {entry.result.message}
+                </span>
               </div>
             ))}
             {history.length > 3 ? (
@@ -1464,7 +1471,7 @@ export function PackScreen() {
           <DialogHeader>
             <DialogTitle>查看渠道</DialogTitle>
             <DialogDescription>
-              {showTarget ? `读取 ${baseNameOf(showTarget)} 的渠道信息。` : '读取包的渠道信息。'}
+              {showTarget ? `读取 ${fileNameOf(showTarget)} 的渠道信息。` : '读取包的渠道信息。'}
             </DialogDescription>
           </DialogHeader>
 

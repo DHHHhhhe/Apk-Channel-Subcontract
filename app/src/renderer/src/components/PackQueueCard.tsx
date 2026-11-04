@@ -274,7 +274,11 @@ export function PackQueueCard({
                 onRerun(detail)
               }}
               rerunDisabled={running}
-              heading={`${detail.apkName} · ${detail.result.ok ? '出包完成' : '出包失败'}`}
+              /*
+               * 标题不再重复包名：结果卡片自己的描述行第一位就是「包名 · 分组」，
+               * 两处都写一遍等于同一行信息出现两次。这里只说是成是败。
+               */
+              heading={detail.result.ok ? '出包完成' : '出包失败'}
             />
           ) : null}
         </DialogContent>

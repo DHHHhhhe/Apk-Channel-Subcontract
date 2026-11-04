@@ -7,6 +7,11 @@ import type { FlowEntry } from '@/store/task'
 interface ProgressPanelProps {
   /** 当前阶段文案；null 表示还没开始 */
   stage: string | null
+  /**
+   * 正在跑的是「哪个包 · 哪个分组」。队列里排着多个包时，
+   * 只有阶段名看不出在跑哪一项 —— 这个标签是分辨的唯一依据。
+   */
+  label?: string | null
   /** 阶段与中文说明的流水 */
   flow: readonly FlowEntry[]
   /** walle / apksigner 的原始输出行，默认折叠 */
@@ -41,6 +46,7 @@ function timeOf(at: number): string {
  */
 export function ProgressPanel({
   stage,
+  label = null,
   flow,
   lines,
   queueProgress = null,
@@ -81,8 +87,25 @@ export function ProgressPanel({
       <CardHeader className="flex flex-row flex-wrap items-center gap-2 border-b">
         <Terminal className="size-4 shrink-0 text-muted-foreground" />
         <CardTitle>进度</CardTitle>
-        {/* 读屏用户切页回来也能听到「跑到哪一步了」 */}
+        {/*
+          * 标签贴在最前面而不是塞进后面那串状态文字里：状态文字随时在刷，
+          * 人扫的时候是「先找是哪个包、再看跑到哪一步」。
+          */}
+        {label !== null && label !== '' ? (
+          <span
+            className="max-w-[24rem] truncate rounded-md bg-muted px-1.5 py-0.5 font-medium text-foreground"
+            title={label}
+          >
+            {label}
+          </span>
+        ) : null}
+        {/* 读屏用户切页回来也能听到「在跑哪个包、跑到哪一步了」 */}
         <span className="text-muted-foreground" role="status" aria-live="polite">
+          {/*
+            * 标签在视觉上已经由上面那个块显示了，这里只给读屏补一份文字 ——
+            * 屏幕上再重复一遍同一个名字只是噪音。
+            */}
+          {label !== null && label !== '' ? <span className="sr-only">{label} · </span> : null}
           {queueProgress ? `第 ${queueProgress.index}/${queueProgress.total} 项 · ` : ''}
           {stage ?? '尚未开始'}
         </span>

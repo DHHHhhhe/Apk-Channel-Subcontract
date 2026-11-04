@@ -38,6 +38,13 @@ let runningAbort: AbortController | null = null
  */
 let runningStage: TaskStage = 'validate'
 let runningMessage = ''
+/**
+ * 正在跑的是「哪个包 · 哪个分组」。
+ *
+ * 与 runningStage 同样只给 `task:getRunning` 用：窗口刷新后界面只知道有一个任务在跑，
+ * 不知道跑的是队列里的哪一项 —— 而队列模式下一批里每一项都是一个独立的包。
+ */
+let runningLabel = ''
 
 function broadcast(payload: TaskProgressEvent): void {
   for (const win of BrowserWindow.getAllWindows()) {
@@ -60,6 +67,7 @@ export function registerTaskIpc(): void {
       runningAbort = abort
       runningStage = 'validate'
       runningMessage = '启动中'
+      runningLabel = input.label?.trim() ?? ''
 
       /*
        * 按契约立刻返回 taskId，不 await：出包要跑几十秒，invoke 挂在那里
@@ -72,7 +80,7 @@ export function registerTaskIpc(): void {
           if (message !== '') {
             runningMessage = message
           }
-          broadcast({ taskId, stage, message, line })
+          broadcast({ taskId, stage, message, label: runningLabel, line })
         },
       })
         .then((result) => {
@@ -80,6 +88,7 @@ export function registerTaskIpc(): void {
             taskId,
             stage: result.ok ? 'done' : result.failure?.cancelled === true ? 'cancelled' : 'failed',
             message: result.message,
+            label: result.label,
             result,
           })
         })
@@ -88,11 +97,13 @@ export function registerTaskIpc(): void {
             taskId,
             stage: 'failed',
             message: error instanceof Error ? error.message : String(error),
+            label: runningLabel,
           })
         })
         .finally(() => {
           runningTaskId = null
           runningAbort = null
+          runningLabel = ''
         })
 
       return { taskId }
@@ -116,7 +127,7 @@ export function registerTaskIpc(): void {
     if (runningTaskId === null) {
       return null
     }
-    return { taskId: runningTaskId, stage: runningStage, message: runningMessage }
+    return { taskId: runningTaskId, stage: runningStage, message: runningMessage, label: runningLabel }
   })
 
   ipcMain.handle(

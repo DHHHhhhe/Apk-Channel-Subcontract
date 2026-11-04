@@ -17,6 +17,16 @@ export type SignMode = 'sign' | 'skip'
  */
 export interface TaskInput {
   apkPath: string
+  /**
+   * 「哪个包 · 哪个分组」的一行标签，由调用方拼好带进来（见 shared/utils/run-label.ts）。
+   *
+   * 为什么不放主进程去拼：走「自定义渠道导出」时根本没有分组，而分组名在出包那一刻
+   * 界面手上就有 —— 主进程回 groups.json 查只能查到「有这个分组」，查不到
+   * 「这一项是自定义渠道」。队列里排着多个包时，进度、最近结果都靠它区分。
+   *
+   * 可选：老调用方（或将来别处发起的任务）不带也能跑，主进程会按 apkPath + groupId 兜一份。
+   */
+  label?: string
   jksId?: string
   /** 渠道来源 A：分组 id，渠道条目取这个分组 */
   groupId?: string
@@ -53,6 +63,11 @@ export interface TaskProgressEvent {
   stage: TaskStage
   /** 阶段说明，给人看的一句话 */
   message: string
+  /**
+   * 「哪个包 · 哪个分组」。每条进度都带上：队列跑起来之后，界面靠它标出
+   * 正在跑的是哪一项，而不是只在队列卡片里对那一行的徽标。
+   */
+  label?: string
   /** 子进程的原始输出行，逐行推送 */
   line?: string
   /** 终态（done / failed）时带完整结果 */
@@ -95,6 +110,11 @@ export interface TaskFailure {
 
 export interface TaskResult {
   taskId: string
+  /**
+   * 「哪个包 · 哪个分组」。最近结果里每一次都只留一份摘要，没有它就分不清
+   * 「第几次是哪一个包」—— 尤其队列跑完一批之后。
+   */
+  label: string
   ok: boolean
   message: string
   outputDir: string
@@ -123,6 +143,11 @@ export interface TaskRunningState {
   stage: TaskStage
   /** 阶段说明，给人看的一句话 */
   message: string
+  /**
+   * 正在跑的是「哪个包 · 哪个分组」。窗口刷新或切页回来时用它把标题接上 ——
+   * 否则只接得到一个阶段名，看不出跑的是队列里的哪一项。
+   */
+  label: string
 }
 
 export interface WalleShowResult {

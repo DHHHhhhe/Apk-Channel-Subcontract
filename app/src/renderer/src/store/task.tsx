@@ -40,6 +40,13 @@ export interface TaskValue {
   running: boolean
   /** 当前阶段的中文名；没跑过时为 null */
   stage: string | null
+  /**
+   * 正在跑的是「哪个包 · 哪个分组」。
+   *
+   * 队列里排着多个包时，只有阶段名是说不出「在跑哪一个」的 —— 人得回头去数
+   * 队列第几行是谁。标签跟着进度事件一路更新，队列换项时它会跟着换。
+   */
+  label: string | null
   /** 阶段与中文说明的流水，最多留最近 200 条 */
   flow: FlowEntry[]
   /** 子进程的原始输出行，最多留最近 500 行 */
@@ -80,6 +87,7 @@ const MAX_HISTORY = 10
 export function TaskProvider({ children }: { children: ReactNode }) {
   const [running, setRunning] = useState(false)
   const [stage, setStage] = useState<string | null>(null)
+  const [label, setLabel] = useState<string | null>(null)
   const [flow, setFlow] = useState<FlowEntry[]>([])
   const [lines, setLines] = useState<string[]>([])
   const [result, setResult] = useState<TaskResult | null>(null)
@@ -108,6 +116,10 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         return
       }
       setStage(STAGE_LABELS[event.stage])
+      // 每条进度都带标签：队列换到下一项时这里跟着换，界面不需要自己推
+      if (event.label !== undefined && event.label !== '') {
+        setLabel(event.label)
+      }
       if (lastStageRef.current !== event.stage) {
         lastStageRef.current = event.stage
         const text = STAGE_LABELS[event.stage]
@@ -153,6 +165,8 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         taskIdRef.current = state.taskId
         setRunning(true)
         setStage(STAGE_LABELS[state.stage])
+        // 刷新前那个任务跑的是哪一个包，只能由主进程告诉我们
+        setLabel(state.label !== '' ? state.label : null)
         lastStageRef.current = state.stage
         setFlow([
           {
@@ -175,6 +189,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     setFlow([])
     setResult(null)
     setStage(null)
+    setLabel(null)
     setRunning(false)
     lastStageRef.current = null
   }, [])
@@ -186,6 +201,12 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     lastStageRef.current = null
     setResult(null)
     setStage('启动中')
+    /*
+     * 标签立刻先亮出来，不等主进程那条进度回来 —— 队列里点了「开始队列」之后，
+     * 头几百毫秒界面还在「启动中」，这时就该看得出跑的是哪一个。
+     * 主进程随后推的那份标签做兜底（参数里没带时才用得上）。
+     */
+    setLabel(params.label?.trim() || null)
     setLastRun(params)
     setRunning(true)
     try {
@@ -253,6 +274,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     () => ({
       running,
       stage,
+      label,
       flow,
       lines,
       result,
@@ -268,6 +290,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     [
       running,
       stage,
+      label,
       flow,
       lines,
       result,

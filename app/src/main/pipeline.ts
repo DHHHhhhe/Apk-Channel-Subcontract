@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import type { ChannelConfig, ChannelEntry, JksItem } from '../shared/types/store'
 import type { TaskArtifact, TaskFailure, TaskInput, TaskResult, TaskStage } from '../shared/types/task'
+import { fileNameOf, formatRunLabel } from '../shared/utils/run-label'
 import { createTaskLogger } from './logger'
 import { resolveInData } from './paths'
 import { StepFailure } from './proc'
@@ -37,6 +38,27 @@ export interface PipelineHooks {
    * 取消时正在跑的那一步会被真的杀掉，而不是等它自己跑完。
    */
   signal?: AbortSignal
+}
+
+/**
+ * 「哪个包 · 哪个分组」。
+ *
+ * 优先用调用方给的 label —— 出包页拼的那份能区分「自定义渠道」与「分组已删」，
+ * 按 groupId 回 groups.json 查是查不出来的。没给时才退到本地拼一份：
+ * 校验阶段就失败（例如 APK 不存在）时，结果卡片上的标签仍然要说清是哪个包，
+ * 所以这里不能依赖 prepare() 的产物。
+ */
+function resolveLabel(input: TaskInput): string {
+  const trimmed = input.label?.trim() ?? ''
+  if (trimmed !== '') {
+    return trimmed
+  }
+  const groupId = input.groupId?.trim() ?? ''
+  const groupName =
+    groupId === ''
+      ? ''
+      : (readGroups().items.find((entry) => entry.id === groupId)?.name ?? '')
+  return formatRunLabel(fileNameOf(input.apkPath.trim()), groupName)
 }
 
 /** 时间戳 + 随机后缀，保证工作目录唯一 */
@@ -182,6 +204,7 @@ export async function runPipeline(
   const log = createTaskLogger(taskId)
   const warnings: string[] = []
   const artifacts: TaskArtifact[] = []
+  const label = resolveLabel(input)
   let workDir = ''
   let outputDir = input.outputDir
 
@@ -199,6 +222,7 @@ export async function runPipeline(
     }
     return {
       taskId,
+      label,
       ok,
       message,
       outputDir,
@@ -215,6 +239,7 @@ export async function runPipeline(
     progress('validate', '校验输入')
     const p = prepare(input)
     outputDir = p.outputDir
+    log.info(`本次出包：${label}`)
     log.info(`输入 APK：${p.apkPath}`)
     log.info(`渠道来源：${p.sourceLabel}`)
     log.info(`签名模式：${input.signMode}`)

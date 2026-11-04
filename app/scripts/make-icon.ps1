@@ -1,4 +1,4 @@
-# 从一张源图生成 app/build/icon.ico，外加界面里用的小图。
+# 从一张源图生成 app/build/icon.ico。
 #
 # 源图是 build/icon.png（1024×1024，带 alpha）。改图形时换掉这张、重跑本脚本即可，
 # 不必依赖某个只在某台机器上存在的设计源文件。
@@ -16,10 +16,7 @@
 [CmdletBinding()]
 param(
   [string]$SourcePng = (Join-Path $PSScriptRoot '..\build\icon.png'),
-  [string]$OutFile = (Join-Path $PSScriptRoot '..\build\icon.ico'),
-  [string]$UiPngOut = (Join-Path $PSScriptRoot '..\src\renderer\src\assets\logo.png'),
-  # 界面小图。侧栏里按 20–24 逻辑像素显示，96 足够覆盖到 4x 屏
-  [int]$UiPngSize = 96
+  [string]$OutFile = (Join-Path $PSScriptRoot '..\build\icon.ico')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -157,16 +154,6 @@ try {
     $writer.Dispose()
     $stream.Dispose()
   }
-
-  # ---- 界面小图 ----
-  if ($UiPngOut) {
-    $uiDir = Split-Path -Parent $UiPngOut
-    if (-not (Test-Path $uiDir)) {
-      New-Item -ItemType Directory -Path $uiDir -Force | Out-Null
-    }
-    $uiBytes = [byte[]](New-ScaledPngBytes -From $source -TargetSize $UiPngSize)
-    [System.IO.File]::WriteAllBytes($UiPngOut, $uiBytes)
-  }
 } finally {
   $source.Dispose()
 }
@@ -177,8 +164,3 @@ Write-Output ("  源图：" + (Resolve-Path -LiteralPath $SourcePng).Path)
 Write-Output ("  ico ：" + $final)
 Write-Output ("    尺寸档：" + (($sizes | ForEach-Object { "${_}px" }) -join ', '))
 Write-Output ("    体积：" + [Math]::Round((Get-Item $final).Length / 1KB, 1) + " KB")
-if ($UiPngOut) {
-  $uiFinal = (Resolve-Path -LiteralPath $UiPngOut).Path
-  Write-Output ("  界面小图：" + $uiFinal)
-  Write-Output ("    " + $UiPngSize + "px, " + [Math]::Round((Get-Item $uiFinal).Length / 1KB, 1) + " KB")
-}

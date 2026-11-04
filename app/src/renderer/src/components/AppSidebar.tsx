@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { KeyRound, ListTree, Package, ScrollText } from 'lucide-react'
-import logoUrl from '@/assets/logo.png'
 import { AutoCheckUpdateToggle } from '@/components/AutoCheckUpdateToggle'
 import { ChangelogDialog } from '@/components/ChangelogDialog'
 import { SidebarResizer } from '@/components/SidebarResizer'
@@ -74,15 +73,15 @@ export function AppSidebar({
       ref={asideRef}
       className="relative flex w-[var(--sidebar-width)] shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground"
     >
-      <div className="flex h-[var(--topbar-height)] shrink-0 items-center gap-2 border-b px-4">
-        {/*
-         * 用应用图标当品牌标识，不用 lucide 的通用包裹图标 ——
-         * 那个图案说「这是个包裹」，但说不了「一个包分出多个渠道包」。
-         */}
-        <img src={logoUrl} alt="" className="size-6 shrink-0" />
-        <span className="text-sm font-medium">渠道分包工具</span>
-      </div>
-
+      {/*
+       * 侧栏顶部不放应用图标和名称。
+       *
+       * 窗口标题栏、任务栏图标已经说明了这是哪个程序，侧栏这块重复一遍只是占掉
+       * 一行的垂直空间；而且首页的页面标题（顶栏那个 h1）就在同一高度，两处标题
+       * 并排会让人分不清哪一个是「当前页面」。
+       *
+       * 导航区直接顶到窗口上沿，靠 p-3 留出与右边缘一致的内边距。
+       */}
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
         {NAV_ITEMS.map((item, index) => {
           const Icon = item.icon

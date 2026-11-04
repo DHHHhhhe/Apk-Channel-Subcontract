@@ -103,7 +103,7 @@ export function TaskResultCard({
           {result.ok ? <Badge variant="success">{result.artifacts.length} 个包</Badge> : null}
         </CardTitle>
         <CardDescription>
-          {result.message}
+          {result.label} · {result.message}
           {result.outputDir ? ` · 输出目录：${result.outputDir}` : ''}
         </CardDescription>
       </CardHeader>
