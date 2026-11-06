@@ -114,7 +114,7 @@ function Build-Jre {
         throw "Adoptium 接口返回内容缺少下载地址或校验和，接口结构可能已变更。"
     }
 
-    $work = Join-Path ([System.IO.Path]::GetTempPath()) ("channel-packager-jdk-" + [guid]::NewGuid().ToString('N'))
+    $work = Join-Path ([System.IO.Path]::GetTempPath()) ("apk-channel-subcontract-jdk-" + [guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Force -Path $work | Out-Null
 
     try {

@@ -85,11 +85,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $version = (Get-Content app/package.json -Raw | ConvertFrom-Json).version
+          $pkg = Get-Content app/package.json -Raw | ConvertFrom-Json
+          $version = $pkg.version
           $tag = "v$version"
           # 安装包在 Release 里必须用 GitHub 能接受的名字；latest.yml 的 path 写的也是这个，
-          # 两边必须一致，否则客户端拿着清单下不到东西
-          $setup = "channel-packager-setup-$version.exe"
+          # 两边必须一致，否则客户端拿着清单下不到东西。
+          # 名字由 electron-builder 从 package.json 的 name 拼（${name}-setup-${version}.exe，
+          # name 全小写时用 setup-），这里跟着算，别写死 —— 改了包名就跟着变。
+          $setup = "$($pkg.name)-setup-$version.exe"
           $draft = '${{ inputs.draft || vars.EP_DRAFT || 'false' }}' -eq 'true'
 
           if (gh release view $tag --repo $env:GITHUB_REPOSITORY 2>$null) {

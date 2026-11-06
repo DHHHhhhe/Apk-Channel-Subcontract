@@ -4,9 +4,9 @@
 
 [中文](README.md) ｜ **English**
 
-[![version](https://img.shields.io/github/v/release/DHHHhhhe/channel-packager)](https://github.com/DHHHhhhe/channel-packager/releases)
+[![version](https://img.shields.io/github/v/release/DHHHhhhe/Apk-Channel-Subcontract)](https://github.com/DHHHhhhe/Apk-Channel-Subcontract/releases)
 ![platform](https://img.shields.io/badge/platform-Windows-0078d4)
-[![license](https://img.shields.io/github/license/DHHHhhhe/channel-packager)](LICENSE)
+[![license](https://img.shields.io/github/license/DHHHhhhe/Apk-Channel-Subcontract)](LICENSE)
 
 Drop in an APK, tick the channels you want, and get a batch of channel packages back.
 
@@ -62,7 +62,7 @@ In short: **your app's channel-reading code and this tool must use the same sche
 
 ## Quick start
 
-1. Grab channel-packager-setup-&lt;version&gt;.exe from [Releases](https://github.com/DHHHhhhe/channel-packager/releases) and install it (you can choose the install directory)
+1. Grab apk-channel-subcontract-setup-&lt;version&gt;.exe from [Releases](https://github.com/DHHHhhhe/Apk-Channel-Subcontract/releases) and install it (you can choose the install directory)
 2. Open the app and go to the "签名配置" (Signing) page to add a keystore: pick the `.jks` file, confirm the alias and passwords, then click "新增并校验" (Add and verify)
 3. Go to "渠道配置" (Channels), create a group and maintain its channel list; the "模板与配置包" (Templates & Config Packs) page holds the suffix templates you can apply when adding a keystore
 4. Go to "出包" (Pack), drop the APK in, tick the channels, and click "开始出包" (Start packing)
@@ -185,8 +185,8 @@ To export a single channel list, use "导出 JSON" / "导出示例 JSON" on the 
 ### Steps
 
 ```powershell
-git clone https://github.com/DHHHhhhe/channel-packager.git
-cd channel-packager/app
+git clone https://github.com/DHHHhhhe/Apk-Channel-Subcontract.git
+cd Apk-Channel-Subcontract/app
 
 pnpm install
 pnpm prepare:runtime   # generates resources/bin — not in the repo, must be run once
@@ -247,7 +247,7 @@ Both routes upload only the **installer** (the only artifact).
 ### About the update URL
 
 - An installed build has the update URL baked into the installer's `resources/app-update.yml`, so **changing the URL means rebuilding the installer**
-- To change it without repackaging, drop an `update.json` into the data directory (`{"url":"http://intranet-server/channel-packager/"}`) — the app uses it to override the built-in URL at startup
+- To change it without repackaging, drop an `update.json` into the data directory (`{"url":"http://intranet-server/Apk-Channel-Subcontract/"}`) — the app uses it to override the built-in URL at startup
 
 ## Known issues
 

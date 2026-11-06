@@ -63,7 +63,7 @@ win:
 publish:
   provider: github
   owner: DHHHhhhe
-  repo: channel-packager
+  repo: Apk-Channel-Subcontract
 
 # Release 的正文。客户端「发现新版本」时显示的更新内容就是这里（见 src/main/updater.ts
 # 的 releaseNotes）：构建时读这个文件，写进 GitHub Release 的 body。
@@ -75,9 +75,11 @@ nsis:
   # 向导式安装，让用户能自己选装到哪 —— allowToChangeInstallationDirectory
   # 只对向导式生效，所以 oneClick 必须是 false。
   #
-  # 默认目录仍是 %LOCALAPPDATA%\Programs\channel-packager（模板拿 APP_FILENAME 拼的，
-  # 与原来一键装的位置一模一样），已经装过的机器会读注册表里的 InstallLocation
-  # 装回原目录，不会装出两份。
+  # 默认目录是 %LOCALAPPDATA%\Programs\apk-channel-subcontract（模板拿 APP_FILENAME 拼，
+  # 中文 productName 过不了它的字符白名单，于是取 package.json 的 name）。
+  # 已经装过的机器会读注册表里的 InstallLocation 装回原目录，不会装出两份 ——
+  # 注册表键由 appId 算，所以 appId 必须保持 com.example.channelpackager 不动。
+  # 老目录叫 channel-packager，是改名前的名字，只为老用户保留。
   #
   # 关于自动更新时会不会弹向导：**取决于调用方传的参数**，不是这里决定的。
   # electron-updater 的 isSilent 默认为 false —— 不显式传 true 就会弹出这个向导。

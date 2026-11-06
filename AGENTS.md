@@ -1,23 +1,25 @@
 <!-- TRELLIS:START -->
-# Trellis Instructions
+# mini-trellis
 
-These instructions are for AI assistants working in this project.
+This project uses mini-trellis as a memory layer. Working knowledge lives under `.trellis/`:
 
-This project is managed by Trellis. The working knowledge you need lives under `.trellis/`:
+- `.trellis/spec/` — durable contracts (short markdown; read `index.md` first)
+- `.trellis/research/` — topic inbox (`<topic>.md`; `README.md` is not a topic)
+- `.trellis/workspace/` — per-developer journals
 
-- `.trellis/workflow.md` — development phases, when to create tasks, skill routing
-- `.trellis/spec/` — package- and layer-scoped coding guidelines (read before writing code in a given layer)
-- `.trellis/workspace/` — per-developer journals and session traces
-- `.trellis/tasks/` — active and archived tasks (PRDs, research, jsonl context)
+Record a session with `/mini-trellis:remember` (Claude/OpenCode), `/mini-trellis-remember` (Pi), or `$mini-trellis-remember` (Codex). When earlier decisions or relevant project rules are needed, use `mini-trellis mem recall "<topic or path>"`; expand evidence with `mini-trellis mem read "<ref>"`. No search is required for unrelated work. Promote lasting boundaries into spec with `mini-trellis-update-spec`.
 
-If a Trellis command is available on your platform (e.g. `/trellis:finish-work`, `/trellis:continue`), prefer it over manual steps. Not every platform exposes every command.
+Record only confirmed decisions, reusable research findings, or the session/compact handoff. Skip ordinary turns and unconfirmed guesses. New installs write notes without an automatic git commit; use `mini-trellis doctor` to check host wiring and `mini-trellis refresh --dry-run` before refreshing assets.
 
-If you're using Codex or another agent-capable tool, additional project-scoped helpers may live in:
-- `.agents/skills/` — reusable Trellis skills
-- `.codex/agents/` — optional custom subagents
+Keep confirmed rules short and faithful. Unconfirmed scope, exceptions, and implementation choices stay open or are labeled as inference, not added to the contract.
 
-Managed by Trellis. Edits outside this block are preserved; edits inside may be overwritten by a future `trellis update`.
+For a confirmed update, follow this short order: read the existing topic; edit that file; read it back and check the new rule, limits, and negations; run `python3 ./.trellis/scripts/add_session.py --title "..." --summary "..." --topic <actual-topic-path>`; read the journal and check its topic link. Journal-only success is not topic success; report partial writes accurately. New notes follow the requested or discussion language; updates preserve the document language.
 
+When recall excerpts already answer the question with source and qualifiers, cite them and stop. Expand only missing context; do not repeat a lookup or fall back to dialogue-only `search` merely to reconfirm sufficient evidence.
+
+mini-trellis does not create or drive tasks.
+
+Managed by mini-trellis. Edits outside this block are preserved.
 <!-- TRELLIS:END -->
 
 ## 本项目约定
@@ -64,7 +66,7 @@ pwsh -File app/scripts/release.ps1
 
 顺序是：改 `app/package.json` 的 `version` → 跑脚本（内部先 `pnpm build`，再构建并上传）。版本号必须比线上大，同号不会被升级。上传完 Release 默认是**草稿**，客户端看不见，要去网页点 Publish。
 
-GitHub 只接受它允许的字符做附件名，中文产物名会被换成 `channel-packager-setup-<版本>.exe`；`latest.yml` 里写的也是这个名字，两边一致，不用管。
+GitHub 只接受它允许的字符做附件名，中文产物名会被换成 `apk-channel-subcontract-setup-<版本>.exe`；`latest.yml` 里写的也是这个名字，两边一致，不用管。这个名字由 `app/package.json` 的 `name` 拼出来（`${name}-setup-${version}.exe`，name 全小写时前缀是 `setup-`），CI 里也改成从 package.json 读了，所以只改 `name` 一处就够；`app/electron-builder.yml` 的 `publish.repo` 是另一回事，它跟着 GitHub 仓库名走。
 
 不想在本机构建也可以推标签让 CI 发：`.github/workflows/release.yml` 在 `v<版本>` 标签上跑，用 Actions 自带的 `GITHUB_TOKEN`，只上传安装包（nsis）。仓库 Variables 里加 `EP_DRAFT=true` 就改成出草稿。
 
@@ -191,4 +193,5 @@ GitHub 只接受它允许的字符做附件名，中文产物名会被换成 `ch
 - 正常用法：从安装版启动（数据在 `%LOCALAPPDATA%\渠道分包工具\data`），`release/` 只留构建产物。
 - 已加一道保险：`app/electron-builder.yml` 的 `beforePack` 钩子（实现在 `app/scripts/before-pack.cjs`）检测到 `app/release/data/` 或 `app/release/win-unpacked/data/` 就直接中止构建。
 - 真被拦下来时，按提示把 `data/` 挪走再重新构建。
+
 

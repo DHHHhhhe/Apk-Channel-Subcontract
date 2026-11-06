@@ -4,9 +4,9 @@
 
 **中文** ｜ [English](README.en.md)
 
-[![version](https://img.shields.io/github/v/release/DHHHhhhe/channel-packager)](https://github.com/DHHHhhhe/channel-packager/releases)
+[![version](https://img.shields.io/github/v/release/DHHHhhhe/Apk-Channel-Subcontract)](https://github.com/DHHHhhhe/Apk-Channel-Subcontract/releases)
 ![platform](https://img.shields.io/badge/platform-Windows-0078d4)
-[![license](https://img.shields.io/github/license/DHHHhhhe/channel-packager)](LICENSE)
+[![license](https://img.shields.io/github/license/DHHHhhhe/Apk-Channel-Subcontract)](LICENSE)
 
 把一个 APK 拖进来，勾几个渠道，得到一批写好渠道信息的渠道包。
 
@@ -60,7 +60,7 @@
 
 ## 快速开始
 
-1. 到 [Releases](https://github.com/DHHHhhhe/channel-packager/releases) 下载 `channel-packager-setup-<版本>.exe` 装上（安装路径可以自己选）
+1. 到 [Releases](https://github.com/DHHHhhhe/Apk-Channel-Subcontract/releases) 下载 `apk-channel-subcontract-setup-<版本>.exe` 装上（安装路径可以自己选）
 2. 打开应用，到「签名配置」新增签名文件：选 `.jks` 文件，确认别名与口令，点「新增并校验」
 3. 到「渠道配置」新建分组并维护它的渠道列表；「模板与配置包」维护后缀表，新增签名文件时可一键套用
 4. 到「出包」把 APK 拖进去，勾选要出的渠道，点「开始出包」
@@ -185,8 +185,8 @@ data/
 ### 步骤
 
 ```powershell
-git clone https://github.com/DHHHhhhe/channel-packager.git
-cd channel-packager/app
+git clone https://github.com/DHHHhhhe/Apk-Channel-Subcontract.git
+cd Apk-Channel-Subcontract/app
 
 pnpm install
 pnpm prepare:runtime   # 生成 resources/bin —— 未入库，必须执行一次
@@ -247,7 +247,7 @@ pwsh -File app/scripts/release.ps1
 ### 关于更新地址
 
 - 装好的机器把更新地址固化在安装包的 `resources/app-update.yml` 里，**换地址要重新构建安装包**
-- 临时换地址不用重新打包：在数据目录放一份 `update.json`（`{"url":"http://内网服务器/渠道分包工具/"}`），应用启动时用它覆盖构建时的地址
+- 临时换地址不用重新打包：在数据目录放一份 `update.json`（`{"url":"http://内网服务器/Apk-Channel-Subcontract/"}`），应用启动时用它覆盖构建时的地址
 
 ## 已知注意事项
 
