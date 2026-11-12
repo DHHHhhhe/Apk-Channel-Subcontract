@@ -434,6 +434,52 @@ box-shadow:
 
 胶囊形，12px。**只用于状态与计数**（条目数、成功/失败），不做装饰性标签。
 
+### 滚动条
+
+**不要留系统默认滚动条。** Windows 上它自带一条灰色轨道，侧栏与内容列各一条时，
+界面里像多了两根竖向的灰条；深色主题下系统还会按 `color-scheme` 另画一套，
+与整体的单色体系对不上。统一接管：
+
+```css
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--foreground) 18%, transparent);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--foreground) 32%, transparent);
+  background-clip: content-box;
+}
+```
+
+三个取值都有理由：
+
+1. **轨道透明，不铺 `--muted`。** 轨道只要能被看见就够了，铺一层底色等于在内容旁边
+   多加一根色带。
+2. **滑块取 `--foreground` 的 18%，不写死颜色。** 它跟着文字色走，两套主题都不必单独写一份。
+   18% 是「看得见、但不抢内容」的量，hover 时提到 32% 表示可拖。
+3. **10px 槽 + 3px 透明描边。** 槽宽留足才好抓，滑块本体只占 4px 才不显笨；
+   `background-clip: content-box` 让描边变成透明内缩，滑块因此是细条而不是填满槽的方块。
+
+**滚动容器要预留槽位。** 内容从短变长时滚动条才出现，不预留的话正文会横向跳一下：
+
+```css
+.scroll-area {
+  scrollbar-gutter: stable;
+}
+```
+
+弹窗里同样处理。滚动条贴着卡片边缘时，给容器 `margin: 0 -4px; padding: 0 4px;`
+把槽推到内边距里，别让它压着圆角。
+
 ### 输出面板（日志 / 控制台）
 
 原始输出区（命令行日志、构建日志、事件流）用**固定的深色底**，不跟随主题：
@@ -458,6 +504,21 @@ box-shadow:
 **不要拿 `--muted` 当嵌套面板的底**：它常常比画布还浅（浅色主题里 `--muted`
 比 `--background` 亮是常见设定），铺上去和画布几乎是同一个颜色，等于没铺。
 嵌套层次用叠加式加深，见第 5 节。
+
+**深底上的滚动条要单独改色。** 全局滑块是 `--foreground` 的 18%，浅色主题下那
+是近黑，压在近黑的日志底上等于看不见。这类面板就地覆盖一次，用日志文字色：
+
+```css
+.log-surface::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--log-foreground) 25%, transparent);
+}
+.log-surface::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--log-foreground) 45%, transparent);
+}
+```
+
+Tailwind 项目里等价写法是元素上的任意变体：
+`[&::-webkit-scrollbar-thumb]:bg-log-foreground/25`。
 
 ---
 
@@ -679,6 +740,33 @@ body {
 /* ── 数字等宽 ── */
 .tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/* ── 滚动条：细、无底色轨道 ── */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--foreground) 18%, transparent);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--foreground) 32%, transparent);
+  background-clip: content-box;
+}
+
+/* 深底面板上的滚动条：全局那档在近黑底上看不见 */
+.log-surface::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--log-foreground) 25%, transparent);
+}
+.log-surface::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--log-foreground) 45%, transparent);
 }
 
 /* ── 尊重减少动效 ── */

@@ -75,7 +75,10 @@ function Shell() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto">
+        {/*
+          * scrollbar-gutter: 内容从短变长时滚动条才出现，不预留槽位正文会横向跳一下。
+          */}
+        <main className="flex-1 overflow-y-auto [scrollbar-gutter:stable]">
           <div className="mx-auto flex max-w-5xl flex-col gap-4 p-6">
             <RuntimeBanner />
 

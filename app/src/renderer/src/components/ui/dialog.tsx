@@ -65,8 +65,11 @@ function DialogContent({
            * max-h + overflow-y-auto 是底线：窗口最小能缩到 1024×680，而内容最长
            * 的对话框（签名文件表单）放不下，没有这两句时底部的按钮在屏幕外，
            * 只能拖窗口才能点到。配合 DialogFooter 的 sticky，按钮始终露在外面。
+           *
+           * scrollbar-gutter 同样要留：不同对话框内容长短不同，不预留时来回切换
+           * 对话框正文会横向跳一下。
            */
-          "fixed top-1/2 left-1/2 z-50 grid max-h-[85vh] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl bg-popover p-4 text-sm text-popover-foreground float-shadow border border-border duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 grid max-h-[85vh] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl bg-popover p-4 text-sm text-popover-foreground float-shadow border border-border duration-100 outline-none [scrollbar-gutter:stable] sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
         {...props}

@@ -82,7 +82,11 @@ export function AppSidebar({
        *
        * 导航区直接顶到窗口上沿，靠 p-3 留出与右边缘一致的内边距。
        */}
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+      {/*
+       * scrollbar-gutter：导航项多到要滚时滚动条才出现，不预留槽位会让每一项
+       * 横向缩 10px，看着像整块导航在抖。
+       */}
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3 [scrollbar-gutter:stable]">
         {NAV_ITEMS.map((item, index) => {
           const Icon = item.icon
           const isActive = item.view === active

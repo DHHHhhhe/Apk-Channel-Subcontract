@@ -341,6 +341,39 @@
   }
 
   /*
+   * 滚动条：细、无底色轨道、两端圆的滑块。
+   *
+   * Windows 默认滚动条自带一条灰色轨道，侧栏与内容列各一条时，看着像界面里多了
+   * 两根竖向的灰条；而深色主题下系统还会按 color-scheme 另画一套，与界面的冷银
+   * 单色体系对不上。这里统一接管：轨道透明，滑块用前景色 18% 的透明色 ——
+   * 它跟着 --foreground 走，两套主题都不用单独写一份；hover 加深到 32%，给出
+   * 「可以拖」的反馈。
+   *
+   * 3px 的透明描边 + background-clip: content-box 是在 10px 的槽里抠出细滑块：
+   * 槽宽留足才好抓，滑块本体只占 4px 才不显笨。
+   */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--foreground) 18%, transparent);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--foreground) 32%, transparent);
+    background-clip: content-box;
+  }
+
+  /*
    * 系统开了「减少动态效果」就把过渡与动画压到几乎瞬时。
    * 对话框的淡入淡出、抽屉的滑入都还在，只是不再动 —— 前庭功能敏感的用户
    * 需要的是这个，而不是继续晃。

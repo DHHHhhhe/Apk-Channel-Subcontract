@@ -124,7 +124,10 @@ export function ProgressPanel({
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3">
-        <div ref={flowRef} className="max-h-64 min-h-24 overflow-y-auto">
+        <div
+          ref={flowRef}
+          className="max-h-64 min-h-24 overflow-y-auto [scrollbar-gutter:stable]"
+        >
           {idle ? (
             <p className="text-sm text-muted-foreground">
               开始出包后，这里会显示当前阶段与每一步的结果。
@@ -151,11 +154,15 @@ export function ProgressPanel({
          * 换一类颜色才是明确的边界。终端面板固定深色也是通行做法（VS Code、iTerm、
          * Hyper 都不跟随编辑器明暗）：日志文本常带硬编码的颜色假设，跟随主题反而
          * 容易出现「浅底浅字」。
+         *
+         * 这层深底上的滚动条单独改色：全局滑块取的是 --foreground 的 18%，
+         * 浅色主题下那是近黑，压在 #1c1c1f 的近黑底上等于看不见。
+         * 就地覆盖滑块颜色，用日志文字色 —— 两套主题下都是同一份值。
          */}
         {showLog && lines.length > 0 ? (
           <div
             ref={logRef}
-            className="max-h-64 overflow-y-auto rounded-lg bg-log-surface px-3 py-2 text-log-foreground"
+            className="max-h-64 overflow-y-auto rounded-lg bg-log-surface px-3 py-2 text-log-foreground [&::-webkit-scrollbar-thumb]:bg-log-foreground/25 [&::-webkit-scrollbar-thumb:hover]:bg-log-foreground/45 [scrollbar-gutter:stable]"
           >
             <pre className="font-mono text-xs whitespace-pre-wrap">{lines.join('\n')}</pre>
           </div>

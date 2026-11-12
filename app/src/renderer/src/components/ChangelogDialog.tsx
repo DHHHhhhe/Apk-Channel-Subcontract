@@ -157,9 +157,13 @@ export function ChangelogDialog({
 
         {/*
          * 滚动区收在 60vh：窗口最小能缩到 680px 高，再高一点标题栏和翻页条就会被挤出去。
-         * -mx-1 + px-1 给滚动条留出位置，免得它贴着卡片边缘。
+         * -mx-1 + px-1 把滚动条槽推到内边距里，免得它贴着卡片边缘；
+         * scrollbar-gutter 固定住槽位，翻页时条目多寡不同也不会让正文横向跳。
          */}
-        <div ref={listRef} className="-mx-1 max-h-[52vh] overflow-y-auto px-1">
+        <div
+          ref={listRef}
+          className="-mx-1 max-h-[52vh] overflow-y-auto px-1 [scrollbar-gutter:stable]"
+        >
           {visible.map((entry) => {
             const isCurrent = entry.version === currentVersion
             return (
